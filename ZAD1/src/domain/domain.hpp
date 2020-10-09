@@ -93,18 +93,46 @@ class SimpleDomain {
         //getters
         int GetFirst() const;
         int GetLast() const;
+
+        bool operator==(const SimpleDomain& sd) const;
+        bool operator!=(const SimpleDomain& sd) const;
 };
 
 class CompositeDomain {
     private:
+        /**
+         * Simple domain components that make this composit domain.
+         */
         std::vector<SimpleDomain> components_;
-        std::vector<DomainElement> elements;
+
+        /**
+         * Elements of this composite domain; ordered n-tuples;
+         */
+        std::vector<DomainElement> elements_;
+
+        /**
+         * Creates elements of this domain by using cartesian product of
+         * simple domain components. Output is stored in private member
+         * variable 'elements_'.
+         */
+        void create_cart_product();
+
+        /**
+         * Helper struct for implementing Cartesian product.
+         */
+        struct Digit {
+            SimpleDomain::iterator begin;
+            SimpleDomain::iterator end;
+            SimpleDomain::iterator curr;
+        };
 
     public:
 
         class iterator {
             public:
-                iterator(const CompositeDomain& cd);
+                iterator(const std::vector<DomainElement>& elements,
+                        int curr_element_idx) :
+                    elements_(elements), curr_element_idx_(curr_element_idx){};
 
                 void operator++();
                 bool operator!=(const iterator& it) const;
@@ -112,10 +140,12 @@ class CompositeDomain {
                 DomainElement operator*() const;
 
             private:
-                std::vector<DomainElement> cart_product_elements_;
+                const std::vector<DomainElement> &elements_;
                 int curr_element_idx_;
 
 };
+
+        CompositeDomain() {};
 
         CompositeDomain(std::vector<SimpleDomain> components);
 
@@ -172,9 +202,6 @@ class CompositeDomain {
          * Returns a read iterator that points to the last element in the domain. Iteration is done in ordinary element order.
          */
         iterator end() const;
-
-        private:
-            void create_cart_product();
 };
 
 
@@ -196,26 +223,18 @@ class DomainFactory {
          * and returns it.
          */
         template<class Domain>
-        static CompositeDomain Combine(const Domain& d1, const Domain& d2);
+        static CompositeDomain Combine(const Domain& d1, const Domain& d2) {
+            std::vector<SimpleDomain> components;
+            for(int i = 0, n = d1.GetNumberOfComponents(); i < n; ++i) {
+                SimpleDomain component = d1.GetComponent(i);
+                components.push_back(component);
+            }
+            for(int i = 0, n = d2.GetNumberOfComponents(); i < n; ++i) {
+                SimpleDomain component = d2.GetComponent(i);
+                components.push_back(component);
+            }
+            return CompositeDomain(components);
+        }
 };
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

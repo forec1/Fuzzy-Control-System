@@ -5,26 +5,14 @@
 using namespace domain;
 
 
-// Domain
+// Domain Factory
 SimpleDomain DomainFactory::IntRange(int first, int last) {
     return SimpleDomain(first, last);
 }
 
-template<class Domain>
-CompositeDomain Combine(const Domain& d1, const Domain& d2) {
-    std::vector<SimpleDomain> components;
-    for(int i = 0, n = d1.GetCardinality(); i < n; ++i) {
-        SimpleDomain component = d1.GetComponent(i);
-        components.push_back(component);
-    }
-    for(int i = 0, n = d2.GetCardinality(); i < n; ++i) {
-        SimpleDomain component = d2.GetComponent(i);
-        components.push_back(component);
-    }
-    return CompositeDomain(components);
-}
-
-// SimpleDomain
+/***************
+* SimpleDomain *
+****************/
 SimpleDomain::SimpleDomain(int first, int last) : first_(first), last_(last) {}
 
 size_t SimpleDomain::GetCardinality() const {
@@ -58,6 +46,52 @@ SimpleDomain::iterator SimpleDomain::end() const {
     return SimpleDomain::iterator(this->last_);
 }
 
+int SimpleDomain::IndexOfElement(DomainElement element) const {
+    int i = 0;
+    for(auto it = this->begin(), it_end = this->end(); it != it_end; ++it) {
+        if(*it == element) { return i; }
+        ++i;
+    }
+    return -1;
+}
+
+DomainElement SimpleDomain::ElementForIndex(int index) const {
+    if(index < 0 || index > (first_ - last_ - 1)) {
+        throw std::out_of_range("Index is < 0 or > " +
+                std::to_string(first_ - last_ - 1) + "!\n");
+    }
+    return DomainElement({first_ + index});
+}
+
+bool SimpleDomain::operator==(const SimpleDomain& sd) const {
+    return this->first_ == sd.first_ && this->last_ == sd.last_;
+}
+bool SimpleDomain::operator!=(const SimpleDomain& sd) const {
+    return !(*this == sd);
+}
+
+/*************************
+* SimpleDomain::iterator *
+**************************/
+void SimpleDomain::iterator::operator++() {
+    ++curr_element_;
+}
+
+bool SimpleDomain::iterator::operator!=(const SimpleDomain::iterator& it) const {
+    return curr_element_ != it.curr_element_;
+}
+
+bool SimpleDomain::iterator::operator==(const SimpleDomain::iterator& it) const {
+    return this->curr_element_ == it.curr_element_;
+}
+
+DomainElement SimpleDomain::iterator::operator*() const {
+    return DomainElement({curr_element_});
+}
+
+
+/*************************************************************************/
+
 
 // CompositeDomain
 CompositeDomain::CompositeDomain(std::vector<SimpleDomain> components) :
@@ -66,7 +100,43 @@ CompositeDomain::CompositeDomain(std::vector<SimpleDomain> components) :
     }
 
 void CompositeDomain::create_cart_product() {
-    
+    std::vector<Digit> vd;
+
+    // Start all of the iterators at the begining
+    for(SimpleDomain sd : this->components_) {
+        struct Digit d = {sd.begin(), sd.end(), sd.begin()};
+        vd.push_back(d);
+    }
+    int i = 0;
+    while(true) {
+        // Construct first product vector by pulling
+        // out the element of each vector via the iterator.
+        std::vector<int> result_vec;
+        for(std::vector<Digit>::iterator it = vd.begin(), it_end = vd.end();
+            it != it_end; ++it) {
+            result_vec.push_back((*(it->curr)).GetComponentValue(0));
+        }
+        this->elements_.push_back(DomainElement(result_vec));
+        // Increment the rightmost one, and repeat.
+        // When you reach the end, reset that one to the beginning and
+        // increment next-to-last one.
+        for(std::vector<Digit>::reverse_iterator it = vd.rbegin(), it_end = vd.rend();;) {
+            ++(it->curr);
+            if(it->curr == it->end) {
+                if(it + 1 == it_end) {
+                    // Last digit
+                    return;
+                } else {
+                    // cascade
+                    it->curr = it->begin;
+                    ++it;
+                }
+            } else {
+                // normaln
+                break;
+            }
+        }
+    }
 }
 
 size_t CompositeDomain::GetCardinality() const{
@@ -85,55 +155,44 @@ size_t CompositeDomain::GetNumberOfComponents() const{
     return this->components_.size();
 }
 
-//TODO
 CompositeDomain::iterator CompositeDomain::begin() const {
-    return CompositeDomain::iterator(*this);
+    return CompositeDomain::iterator(this->elements_, 0);
 }
 
-//TODO
 CompositeDomain::iterator CompositeDomain::end() const {
-    return CompositeDomain::iterator(*this);
+    return CompositeDomain::iterator(this->elements_, this->elements_.size());
 }
 
-//SimpleDomain::iterator
-void SimpleDomain::iterator::operator++() {
-    ++curr_element_;
+int CompositeDomain::IndexOfElement(DomainElement element) const {
+    int i = 0;
+    for(DomainElement el_ : elements_) {
+        if(el_ == element) { return i; }
+        ++i;
+    }
+    return -1;
 }
 
-bool SimpleDomain::iterator::operator!=(const SimpleDomain::iterator& it) const {
-    return curr_element_ != it.curr_element_;
+DomainElement CompositeDomain::ElementForIndex(int index) const {
+    size_t n = this->elements_.size();
+    if(index < 0 || index >= n) {
+        throw std::out_of_range("Index is < 0 or > " + std::to_string(n) + "!\n");
+    }
+    return this->elements_[index];
 }
 
-bool SimpleDomain::iterator::operator==(const SimpleDomain::iterator& it) const {
-    return !(*this != it);
-}
-
-DomainElement SimpleDomain::iterator::operator*() const {
-    return DomainElement({curr_element_});
-}
-
-
-
+// CompositeDomain::iterator
 void CompositeDomain::iterator::operator++() {
     ++curr_element_idx_;
 }
 
 bool CompositeDomain::iterator::operator!=(const CompositeDomain::iterator& it) const {
-    return true;
+    return !(*this == it);
 }
 
 bool CompositeDomain::iterator::operator==(const CompositeDomain::iterator& it) const {
-    return true;
+    return this->elements_ == it.elements_ && this->curr_element_idx_ == it.curr_element_idx_;
 }
 
 DomainElement CompositeDomain::iterator::operator*() const {
-    return cart_product_elements_[curr_element_idx_];
+    return elements_[curr_element_idx_];
 }
-
-
-
-
-
-
-
-

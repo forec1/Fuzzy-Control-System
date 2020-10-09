@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 
 namespace domain {
 
@@ -34,5 +35,7 @@ class DomainElement {
 
        bool operator==(const DomainElement& e) const;
        bool operator!=(const DomainElement& e) const;
+
+       std::string ToString() const;
 };
 }

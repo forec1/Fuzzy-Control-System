@@ -23,3 +23,15 @@ bool DomainElement::operator==(const DomainElement& e) const {
 bool DomainElement::operator!=(const DomainElement& e) const {
     return !(*this == e);
 }
+
+std::string DomainElement::ToString() const {
+    std::string s = "(";
+    for(auto it = values_.begin(); it != values_.end(); ++it) {
+        s += std::to_string(*it);
+        if(it + 1 != values_.end()) {
+            s += " ";
+        }
+    }
+    s += ")";
+    return s;
+}
