@@ -21,15 +21,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Za omogucavanje buildanja testova odkomentirati sve dole linije
 # i u folder lib staviti gtest source code
 
-# enable_testing()
-# option(BUILD_TESTING "Build the tests" ON)
+enable_testing()
+option(BUILD_TESTING "Build the tests" ON)
 
 add_subdirectory(src)
+
 # Odkomentirati ako se koriste library
 # Ja sam koristio gtest za pisanje unit testova
 # Samo taj kod je potrebno staviti u folder lib
-# add_subdirectory(lib)
+add_subdirectory(lib)
 
-# if(BUILD_TESTING)
-#     add_subdirectory(test)
-# endif()
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()
