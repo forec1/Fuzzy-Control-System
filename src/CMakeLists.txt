@@ -12,11 +12,11 @@ set(DomainSources
 
 add_library(domain ${DomainSources} ${DomainHeaders})
 
-add_library(fuzzy_set INTERFACE)
-target_include_directories(fuzzy_set INTERFACE "${PROJECT_SOURCE_DIR}/src/fuzzy_set")
+add_library(fuzzy INTERFACE)
+target_include_directories(fuzzy INTERFACE "${PROJECT_SOURCE_DIR}/src/fuzzy")
 
-add_library(unitary_function INTERFACE)
-target_include_directories(unitary_function INTERFACE "${PROJECT_SOURCE_DIR}/src/unitary_function")
+add_library(unary_function INTERFACE)
+target_include_directories(unary_function INTERFACE "${PROJECT_SOURCE_DIR}/src/unitary_function")
 
 add_library(operations INTERFACE)
 target_include_directories(operations INTERFACE "${PROJECT_SOURCE_DIR}/src/operation")

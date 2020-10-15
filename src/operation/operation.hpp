@@ -1,4 +1,4 @@
-#include "../fuzzy_set/fuzzy_set.hpp"
+#include "../fuzzy/fuzzy_set.hpp"
 
 using namespace fuzzy_set;
 

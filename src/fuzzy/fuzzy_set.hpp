@@ -1,4 +1,4 @@
-#include "../function/unitary_function.hpp"
+#include "../function/unary_function.hpp"
 #include "../domain/domain.hpp"
 
 using namespace domain;
@@ -46,7 +46,7 @@ namespace fuzzy_set {
              * Returns value of membership function for given element.
              * If element is not found in the domain 0.0 is returned.
              */
-            double GetValueAt(const DomainElement& e) {
+            double GetValueAt(const DomainElement& e) const {
                 int idx = domain_.IndexOfElement(e);
                 if(idx != -1) {
                     return membership_[idx];

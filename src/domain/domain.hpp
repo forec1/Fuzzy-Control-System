@@ -24,6 +24,7 @@ class SimpleDomain {
                 void operator++();
                 bool operator!=(const iterator& iterator) const;
                 bool operator==(const iterator& iterator) const;
+                iterator operator+(int offset);
                 DomainElement operator*() const;
             private:
                 int curr_element_;
@@ -68,7 +69,7 @@ class SimpleDomain {
         /**
          * Returns ordinal number of given domain element.
          */
-        int IndexOfElement(DomainElement element) const;
+        int IndexOfElement(const DomainElement& element) const;
 
         /**
          * Returns domain element at given ordinal number.
@@ -181,7 +182,7 @@ class CompositeDomain {
         /**
          * Returns ordinal number of given domain element.
          */
-        int IndexOfElement(DomainElement element) const;
+        int IndexOfElement(const DomainElement& element) const;
 
         /**
          * Returns domain element at given ordinal number.

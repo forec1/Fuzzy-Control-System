@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/fuzzy_set/fuzzy_set.hpp"
+#include "../src/fuzzy/fuzzy_set.hpp"
 
 class FuzzySetTest : public ::testing::Test {
     protected:

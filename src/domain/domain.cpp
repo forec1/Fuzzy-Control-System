@@ -46,7 +46,7 @@ SimpleDomain::iterator SimpleDomain::end() const {
     return SimpleDomain::iterator(this->last_);
 }
 
-int SimpleDomain::IndexOfElement(DomainElement element) const {
+int SimpleDomain::IndexOfElement(const DomainElement& element) const {
     int i = 0;
     for(auto it = this->begin(), it_end = this->end(); it != it_end; ++it) {
         if(*it == element) { return i; }
@@ -87,6 +87,10 @@ bool SimpleDomain::iterator::operator==(const SimpleDomain::iterator& it) const 
 
 DomainElement SimpleDomain::iterator::operator*() const {
     return DomainElement({curr_element_});
+}
+
+SimpleDomain::iterator SimpleDomain::iterator::operator+(int offset) {
+    return SimpleDomain::iterator(curr_element_ + offset);
 }
 
 
@@ -163,10 +167,10 @@ CompositeDomain::iterator CompositeDomain::end() const {
     return CompositeDomain::iterator(this->elements_, this->elements_.size());
 }
 
-int CompositeDomain::IndexOfElement(DomainElement element) const {
+int CompositeDomain::IndexOfElement(const DomainElement& element) const {
     int i = 0;
-    for(DomainElement el_ : elements_) {
-        if(el_ == element) { return i; }
+    for(auto it = elements_.begin(), it_end = elements_.end(); it != it_end; ++it) {
+        if(*it == element) { return i; }
         ++i;
     }
     return -1;
