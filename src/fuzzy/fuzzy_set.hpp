@@ -37,6 +37,8 @@ namespace fuzzy_set {
             Domain domain_;
 
         public:
+            MutableFuzzySet() = default;
+
             MutableFuzzySet(Domain domain) : domain_(domain),
                 membership_(domain.GetCardinality(), 0) {}
 

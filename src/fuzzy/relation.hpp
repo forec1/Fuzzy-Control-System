@@ -27,7 +27,60 @@ namespace fuzzy_set {
 
             template<class FuzzySet>
             static bool is_max_min_transitive(const FuzzySet& relation);
+
+            template<class FuzzySet>
+            static FuzzySet composition_of_binary_relations(const FuzzySet& r1, const FuzzySet& r2);
+
+            template<class FuzzySet>
+            static bool is_fuzzy_equivalence(const FuzzySet& relation);
     };
+
+    template<class FuzzySet>
+    bool Relations::is_fuzzy_equivalence(const FuzzySet& relation) {
+        return is_symmetric(relation) && is_reflexive(relation) && is_max_min_transitive(relation);
+    }
+
+    template<class FuzzySet>
+    FuzzySet Relations::composition_of_binary_relations(const FuzzySet& r1, const FuzzySet& r2) {
+        domain::SimpleDomain X = r1.GetDomain().GetComponent(0);
+        domain::SimpleDomain Y = r1.GetDomain().GetComponent(1);
+        domain::SimpleDomain Z = r2.GetDomain().GetComponent(1);
+
+        if(Y != r2.GetDomain().GetComponent(0)) {
+            throw std::runtime_error("Domains must be the same!");
+        }
+
+        MutableFuzzySet<domain::CompositeDomain> r_compostion(domain::DomainFactory::Combine(X, Z));
+        for(auto itX = X.begin(), itX_end = X.end(); itX != itX_end; ++itX) {
+            for(auto itZ = Z.begin(), itZ_end = Z.end(); itZ != itZ_end; ++itZ) {
+                double max = -1.0;
+                for(auto itY = Y.begin(), itY_end = Y.end(); itY != itY_end; ++itY) {
+                    double v = std::min(
+                            r1.GetValueAt(domain::DomainElement({
+                                    (*itX).GetComponentValue(0),
+                                    (*itY).GetComponentValue(0)
+                                    })
+                                ),
+                            r2.GetValueAt(domain::DomainElement({
+                                    (*itY).GetComponentValue(0),
+                                    (*itZ).GetComponentValue(0)
+                                    })
+                                )
+                            );
+                    if(v > max) {
+                        max = v;
+                    }
+                }
+                r_compostion.set(
+                        domain::DomainElement({
+                            (*itX).GetComponentValue(0),
+                            (*itZ).GetComponentValue(0)
+                            }),
+                        max);
+            }
+        }
+        return r_compostion;
+    }
 
     template<class FuzzySet>
     bool Relations::is_max_min_transitive(const FuzzySet& relation) {
