@@ -1,34 +1,49 @@
 #include "domain_element.hpp"
 
-using namespace domain;
+domain::DomainElement::DomainElement(domain::DomainElement&& other) noexcept :
+    m_values(std::move(other.m_values)) {}
 
-DomainElement::DomainElement(std::vector<int> values) : values_(values) {};
+domain::DomainElement::DomainElement(const std::vector<int>& values) :
+    m_values(values) {};
 
-size_t DomainElement::GetNumberOfComponents() const {
-    return values_.size();
+domain::DomainElement::DomainElement(std::vector<int>&& values) noexcept :
+    m_values(std::move(values)) {}
+
+size_t domain::DomainElement::GetNumberOfComponents() const {
+    return m_values.size();
 }
 
-int DomainElement::GetComponentValue(int index) const {
-    return values_[index];
+int domain::DomainElement::GetComponentValue(int index) const {
+    return m_values[index];
 }
 
-DomainElement DomainElement::Of(std::vector<int> values) {
-    return DomainElement(values);
+bool domain::DomainElement::operator==(const DomainElement& e) const {
+    return this->m_values == e.m_values;
 }
 
-bool DomainElement::operator==(const DomainElement& e) const {
-    return this->values_ == e.values_;
+domain::DomainElement& domain::DomainElement::operator=(DomainElement&& other) noexcept {
+    if(this != &other) {
+        this->m_values = std::move(other.m_values);
+    }
+    return *this;
 }
 
-bool DomainElement::operator!=(const DomainElement& e) const {
+domain::DomainElement& domain::DomainElement::operator=(const DomainElement& other) {
+    if(*this != other) {
+        this->m_values = other.m_values;
+    }
+    return *this;
+}
+
+bool domain::DomainElement::operator!=(const DomainElement& e) const {
     return !(*this == e);
 }
 
-std::string DomainElement::ToString() const {
-    std::string s = "(";
-    for(auto it = values_.begin(); it != values_.end(); ++it) {
+std::string domain::DomainElement::ToString() const {
+    std::string s("(");
+    for(auto it = m_values.begin(); it != m_values.end(); ++it) {
         s += std::to_string(*it);
-        if(it + 1 != values_.end()) {
+        if(it + 1 != m_values.end()) {
             s += " ";
         }
     }

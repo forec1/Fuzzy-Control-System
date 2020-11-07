@@ -5,23 +5,23 @@ class FuzzySetTest : public ::testing::Test {
     protected:
 
         void SetUp() override {
-            set1.set(domain::DomainElement::Of({0}), 1.0)
-                .set(domain::DomainElement::Of({1}), 0.8)
-                .set(domain::DomainElement::Of({2}), 0.6)
-                .set(domain::DomainElement::Of({3}), 0.4)
-                .set(domain::DomainElement::Of({4}), 0.2);
+            set1.set(domain::DomainElement({0}), 1.0)
+                .set(domain::DomainElement({1}), 0.8)
+                .set(domain::DomainElement({2}), 0.6)
+                .set(domain::DomainElement({3}), 0.4)
+                .set(domain::DomainElement({4}), 0.2);
         }
 
         domain::SimpleDomain d = DomainFactory::IntRange(0, 11);
-        fuzzy_set::MutableFuzzySet<domain::SimpleDomain> set1 = {d};
+        fuzzy_set::MutableFuzzySet<domain::SimpleDomain> set1{d};
         std::vector<double> gt = {1.0, 0.8, 0.6, 0.4, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
         domain::SimpleDomain d2 = DomainFactory::IntRange(-5, 6);
         function::LambdaFunction function = fuzzy_set::StandardFuzzySets
             <function::LambdaFunction>::lambda_function(
-                    d2.IndexOfElement(domain::DomainElement::Of({-4})),
-                    d2.IndexOfElement(domain::DomainElement::Of({0})),
-                    d2.IndexOfElement(domain::DomainElement::Of({4}))
+                    d2.IndexOfElement(domain::DomainElement({-4})),
+                    d2.IndexOfElement(domain::DomainElement({0})),
+                    d2.IndexOfElement(domain::DomainElement({4}))
                     );
         fuzzy_set::CalculatedFuzzySet<
             domain::SimpleDomain,

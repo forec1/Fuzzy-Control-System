@@ -4,9 +4,11 @@
 
 class RelationTest3 : public ::testing::Test {
     protected:
-        void SetUp() override {
-            r = domain::DomainFactory::Combine(u, u);
+        RelationTest3() :
+            u(domain::SimpleDomain(1, 5)),
+            r(domain::DomainFactory::Combine(u, u)) {}
 
+        void SetUp() override {
             r.set(domain::DomainElement({1, 1}), 1)
              .set(domain::DomainElement({2, 2}), 1)
              .set(domain::DomainElement({3, 3}), 1)
@@ -21,7 +23,7 @@ class RelationTest3 : public ::testing::Test {
             r2 = r;
         }
 
-        SimpleDomain u = domain::DomainFactory::IntRange(1, 5);
+        SimpleDomain u;
         fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r;
         fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r2;
 
@@ -87,8 +89,8 @@ class RelationTest2 : public ::testing::Test {
         SimpleDomain u2 = domain::DomainFactory::IntRange(1, 4);
         SimpleDomain u3 = domain::DomainFactory::IntRange(1, 5);
 
-        fuzzy_set::MutableFuzzySet<CompositeDomain> r1 = {domain::DomainFactory::Combine(u1, u2)};
-        fuzzy_set::MutableFuzzySet<CompositeDomain> r2 = {domain::DomainFactory::Combine(u2, u3)};
+        fuzzy_set::MutableFuzzySet<CompositeDomain> r1{domain::DomainFactory::Combine(u1, u2)};
+        fuzzy_set::MutableFuzzySet<CompositeDomain> r2{domain::DomainFactory::Combine(u2, u3)};
         fuzzy_set::MutableFuzzySet<CompositeDomain> r1r2;
 
 
@@ -152,10 +154,10 @@ class RelationTest1 : public ::testing::Test {
         domain::SimpleDomain u = domain::DomainFactory::IntRange(1, 6);
         domain::CompositeDomain u2 = domain::DomainFactory::Combine(u, u);
 
-        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r1 = {u2};
-        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r2 = {u2};
-        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r3 = {u2};
-        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r4 = {u2};
+        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r1{u2};
+        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r2{u2};
+        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r3{u2};
+        fuzzy_set::MutableFuzzySet<domain::CompositeDomain> r4{u2};
 };
 
 

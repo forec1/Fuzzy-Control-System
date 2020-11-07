@@ -48,8 +48,8 @@ SimpleDomain::iterator SimpleDomain::end() const {
 
 int SimpleDomain::IndexOfElement(const DomainElement& element) const {
     int i = 0;
-    for(auto it = this->begin(), it_end = this->end(); it != it_end; ++it) {
-        if(*it == element) { return i; }
+    for(const auto & e : *this) {
+        if(e == element) { return i; }
         ++i;
     }
     return -1;
@@ -70,6 +70,24 @@ bool SimpleDomain::operator!=(const SimpleDomain& sd) const {
     return !(*this == sd);
 }
 
+SimpleDomain& SimpleDomain::operator=(const SimpleDomain& other) {
+    if(this == &other) {
+        return *this;
+    }
+    this->first_ = other.first_;
+    this->last_ = other.last_;
+    return *this;
+}
+
+SimpleDomain& SimpleDomain::operator=(SimpleDomain&& other) noexcept {
+    if(this == &other) {
+        return *this;
+    }
+    this->first_ = other.first_;
+    this->last_ = other.last_;
+    return *this;
+}
+
 /*************************
 * SimpleDomain::iterator *
 **************************/
@@ -86,11 +104,11 @@ bool SimpleDomain::iterator::operator==(const SimpleDomain::iterator& it) const 
 }
 
 DomainElement SimpleDomain::iterator::operator*() const {
-    return DomainElement({curr_element_});
+    return DomainElement({this->curr_element_});
 }
 
-SimpleDomain::iterator SimpleDomain::iterator::operator+(int offset) {
-    return SimpleDomain::iterator(curr_element_ + offset);
+SimpleDomain::iterator SimpleDomain::iterator::operator+(int offset) const {
+    return SimpleDomain::iterator(this->curr_element_ + offset);
 }
 
 
@@ -98,8 +116,8 @@ SimpleDomain::iterator SimpleDomain::iterator::operator+(int offset) {
 
 
 // CompositeDomain
-CompositeDomain::CompositeDomain(std::vector<SimpleDomain> components) :
-    components_(components) {
+CompositeDomain::CompositeDomain(std::vector<SimpleDomain>&& components) :
+    components_(std::move(components)) {
         create_cart_product();
     }
 
@@ -107,7 +125,7 @@ void CompositeDomain::create_cart_product() {
     std::vector<Digit> vd;
 
     // Start all of the iterators at the begining
-    for(SimpleDomain sd : this->components_) {
+    for(const SimpleDomain& sd : this->components_) {
         struct Digit d = {sd.begin(), sd.end(), sd.begin()};
         vd.push_back(d);
     }
@@ -116,15 +134,14 @@ void CompositeDomain::create_cart_product() {
         // Construct first product vector by pulling
         // out the element of each vector via the iterator.
         std::vector<int> result_vec;
-        for(std::vector<Digit>::iterator it = vd.begin(), it_end = vd.end();
-            it != it_end; ++it) {
-            result_vec.push_back((*(it->curr)).GetComponentValue(0));
+        for(auto & d : vd) {
+            result_vec.push_back((*d.curr).GetComponentValue(0));
         }
-        this->elements_.push_back(DomainElement(result_vec));
+        this->elements_.emplace_back(DomainElement(result_vec));
         // Increment the rightmost one, and repeat.
         // When you reach the end, reset that one to the beginning and
         // increment next-to-last one.
-        for(std::vector<Digit>::reverse_iterator it = vd.rbegin(), it_end = vd.rend();;) {
+        for(auto it = vd.rbegin(), it_end = vd.rend();;) {
             ++(it->curr);
             if(it->curr == it->end) {
                 if(it + 1 == it_end) {
@@ -169,8 +186,8 @@ CompositeDomain::iterator CompositeDomain::end() const {
 
 int CompositeDomain::IndexOfElement(const DomainElement& element) const {
     int i = 0;
-    for(auto it = elements_.begin(), it_end = elements_.end(); it != it_end; ++it) {
-        if(*it == element) { return i; }
+    for(const auto & e : this->elements_) {
+        if(e == element) { return i; }
         ++i;
     }
     return -1;
@@ -182,6 +199,24 @@ DomainElement CompositeDomain::ElementForIndex(int index) const {
         throw std::out_of_range("Index is < 0 or > " + std::to_string(n) + "!\n");
     }
     return this->elements_[index];
+}
+
+CompositeDomain& CompositeDomain::operator=(const CompositeDomain& other) {
+    if(this == &other) {
+        return *this;
+    }
+    this->components_ = other.components_;
+    this->elements_ = other.elements_;
+    return *this;
+}
+
+CompositeDomain& CompositeDomain::operator=(CompositeDomain&& other) noexcept {
+    if(this == &other) {
+        return *this;
+    }
+    this->elements_ = std::move(other.elements_);
+    this->components_ = std::move(other.components_);
+    return *this;
 }
 
 // CompositeDomain::iterator

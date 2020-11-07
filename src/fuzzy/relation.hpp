@@ -1,12 +1,15 @@
+#ifndef _FUZZY_RELATION_HPP
+#define _FUZZY_RELATION_HPP
+
 #include "fuzzy_set.hpp"
-#include <math.h>
+#include <cmath>
 #include <limits>
 
 namespace fuzzy_set {
 
     class Relations {
         public:
-            Relations() {}
+            Relations() = default;
 
             /**
              * Checks whether the domain over which the fuzzy set
@@ -95,7 +98,7 @@ namespace fuzzy_set {
 
                 int e1 = (*it1).GetComponentValue(0);
                 int e2 = (*it2).GetComponentValue(1);
-                if(relation.GetValueAt(domain::DomainElement::Of({e1, e2})) < std::min(
+                if(relation.GetValueAt(domain::DomainElement({e1, e2})) < std::min(
                                 relation.GetValueAt(*it1),
                                 relation.GetValueAt(*it2)
                                 )) {
@@ -115,7 +118,7 @@ namespace fuzzy_set {
 
         for(auto it = sd.begin(), it_end = sd.end(); it != it_end; ++it) {
             int e = (*it).GetComponentValue(0);
-            if(fabs(relation.GetValueAt(domain::DomainElement::Of({e, e})) - 1.0) > std::numeric_limits<double>::epsilon()) {
+            if(fabs(relation.GetValueAt(domain::DomainElement({e, e})) - 1.0) > std::numeric_limits<double>::epsilon()) {
                 return false;
             }
         }
@@ -143,8 +146,8 @@ namespace fuzzy_set {
             for(auto it2 = sd2.begin() + i, it_end2 = sd2.end(); it2 != it_end2; ++it2) {
                 int e1 = (*it1).GetComponentValue(0);
                 int e2 = (*it2).GetComponentValue(0);
-                if(relation.GetValueAt(domain::DomainElement::Of({e1, e2})) !=
-                        relation.GetValueAt(domain::DomainElement::Of({e2, e1}))) {
+                if(relation.GetValueAt(domain::DomainElement({e1, e2})) !=
+                        relation.GetValueAt(domain::DomainElement({e2, e1}))) {
                     return false;
                 }
             }
@@ -153,4 +156,4 @@ namespace fuzzy_set {
         return true;
     }
 }
-
+#endif // _FUZZY_RELATION_HPP

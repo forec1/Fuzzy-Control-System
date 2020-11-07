@@ -1,3 +1,6 @@
+#ifndef _DOMAIN_DOMAIN_HPP
+#define _DOMAIN_DOMAIN_HPP
+
 #include "domain_element.hpp"
 #include <memory>
 
@@ -10,27 +13,36 @@ namespace domain {
 class SimpleDomain {
     private:
         // Lower bound of interval
-        int first_;
+        int first_{0};
 
         // Higher bound of interval
-        int last_;
+        int last_{0};
 
     public:
 
         class iterator {
             public:
-                iterator(int curr_element) : curr_element_(curr_element) {};
+                explicit iterator(int curr_element) : curr_element_(curr_element) {};
 
                 void operator++();
                 bool operator!=(const iterator& iterator) const;
                 bool operator==(const iterator& iterator) const;
-                iterator operator+(int offset);
+                iterator operator+(int offset) const;
                 DomainElement operator*() const;
             private:
                 int curr_element_;
         };
 
-        SimpleDomain() : first_(0), last_(0){}
+        /**
+         * Copy constructor
+         */
+        SimpleDomain(const SimpleDomain& other) = default;
+
+        SimpleDomain(SimpleDomain&& other) noexcept : first_(other.first_),
+            last_(other.last_) {}
+
+        SimpleDomain() = default;
+        ~SimpleDomain() = default;
 
         /**
          * Constructors that recieves interval bounds.
@@ -45,7 +57,7 @@ class SimpleDomain {
         /**
          * Returns cardinality of domain.
          */
-        size_t GetCardinality() const;
+        [[nodiscard]] size_t GetCardinality() const;
 
         /**
          * Returns itself.
@@ -57,19 +69,19 @@ class SimpleDomain {
          * @param index Index of component. Must be >= 0 and < number of components.
          * @throws std::out_of_range If index is < 0 or >= number of components.
          */
-        SimpleDomain GetComponent(int index) const;
+        [[nodiscard]] SimpleDomain GetComponent(int index) const;
 
         /**
         * Returns the number of simple domains participating in the
         * Cartesian set, but because this class represents simple domain
         * only that domain is in the Cartesian set, so it returns 1.
         */
-        size_t GetNumberOfComponents() const;
+        [[nodiscard]] size_t GetNumberOfComponents() const;
 
         /**
          * Returns ordinal number of given domain element.
          */
-        int IndexOfElement(const DomainElement& element) const;
+        [[nodiscard]] int IndexOfElement(const DomainElement& element) const;
 
         /**
          * Returns domain element at given ordinal number.
@@ -79,24 +91,26 @@ class SimpleDomain {
          * @param index Ordinal number of the domain element.
          * @return Domain element at given ordinal number.
          */
-        DomainElement ElementForIndex(int index) const;
+        [[nodiscard]] DomainElement ElementForIndex(int index) const;
 
         /**
          * Returns a read iterator that points to the first element in the domain. Iteration is done in ordinary element order.
          */
-        iterator begin() const;
+        [[nodiscard]] iterator begin() const;
 
         /**
          * Returns a read iterator that points to the last element in the domain. Iteration is done in ordinary element order.
          */
-        iterator end() const;
+        [[nodiscard]] iterator end() const;
 
         //getters
-        int GetFirst() const;
-        int GetLast() const;
+        [[nodiscard]] int GetFirst() const;
+        [[nodiscard]] int GetLast() const;
 
         bool operator==(const SimpleDomain& sd) const;
         bool operator!=(const SimpleDomain& sd) const;
+        SimpleDomain& operator=(const SimpleDomain& other);
+        SimpleDomain& operator=(SimpleDomain&& other) noexcept;
 };
 
 class CompositeDomain {
@@ -144,16 +158,29 @@ class CompositeDomain {
                 const std::vector<DomainElement> &elements_;
                 int curr_element_idx_;
 
-};
+        };
 
-        CompositeDomain() {};
+        CompositeDomain() = default;
 
-        CompositeDomain(std::vector<SimpleDomain> components);
+        /**
+         * Move constructor
+         */
+        CompositeDomain(CompositeDomain&& other) noexcept :
+            components_(std::move(other.components_)),
+            elements_(std::move(other.elements_)) {}
+
+        /**
+         * Copy constructor
+         */
+        CompositeDomain(const CompositeDomain& other) = default;
+
+        explicit CompositeDomain(std::vector<SimpleDomain>&& components);
+        ~CompositeDomain() = default;
 
         /**
          * Returns cardinality of domain.
          */
-        size_t GetCardinality() const;
+        [[nodiscard]] size_t GetCardinality() const;
 
         /**
          * Returns component of Cartesian set at given index.
@@ -165,7 +192,7 @@ class CompositeDomain {
          * @param index Index of component. Must be >= 0 and < number of components.
          * @throws std::out_of_range If index is < 0 or >= number of components.
          */
-        SimpleDomain GetComponent(int index) const;
+        [[nodiscard]] SimpleDomain GetComponent(int index) const;
 
         /**
         * Returns the number of simple domains participating in the
@@ -177,12 +204,12 @@ class CompositeDomain {
         *
         * @see SimpleDomain
         */
-        size_t GetNumberOfComponents() const;
+        [[nodiscard]] size_t GetNumberOfComponents() const;
 
         /**
          * Returns ordinal number of given domain element.
          */
-        int IndexOfElement(const DomainElement& element) const;
+        [[nodiscard]] int IndexOfElement(const DomainElement& element) const;
 
         /**
          * Returns domain element at given ordinal number.
@@ -192,17 +219,20 @@ class CompositeDomain {
          * @param index Ordinal number of the domain element.
          * @return Domain element at given ordinal number.
          */
-        DomainElement ElementForIndex(int index) const;
+        [[nodiscard]] DomainElement ElementForIndex(int index) const;
 
         /**
          * Returns a read iterator that points to the first element in the domain. Iteration is done in ordinary element order.
          */
-        iterator begin() const;
+        [[nodiscard]] iterator begin() const;
 
         /**
          * Returns a read iterator that points to the last element in the domain. Iteration is done in ordinary element order.
          */
-        iterator end() const;
+        [[nodiscard]] iterator end() const;
+
+        CompositeDomain& operator=(const CompositeDomain& other);
+        CompositeDomain& operator=(CompositeDomain&& other) noexcept;
 };
 
 
@@ -234,8 +264,9 @@ class DomainFactory {
                 SimpleDomain component = d2.GetComponent(i);
                 components.push_back(component);
             }
-            return CompositeDomain(components);
+            return CompositeDomain(std::move(components));
         }
 };
 
-}
+} //namespace domain
+#endif // _DOMAIN_DOMAIN_HPP

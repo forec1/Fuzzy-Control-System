@@ -6,22 +6,22 @@ namespace operation {
 
     class ZadehNotFunction {
         public:
-            double value_at(double x) { return 1.0 - x; }
+            static double value_at(double x) { return 1.0 - x; }
     };
 
     class ZadehOrFunction {
         public:
-            double value_at(double x1, double x2) { return std::max(x1, x2); }
+            static double value_at(double x1, double x2) { return std::max(x1, x2); }
     };
 
     class ZadehAndFunction {
         public:
-            double value_at(double x1, double x2) { return std::min(x1, x2); }
+            static double value_at(double x1, double x2) { return std::min(x1, x2); }
     };
 
     class HamacherTNormFunction {
         public:
-            HamacherTNormFunction(double t) : t_(t) {};
+            explicit HamacherTNormFunction(double t) : t_(t) {};
             double value_at(double x1, double x2) {
                 return (x1 * x2) / (t_ + (1 - t_)*(x1 + x1 - x1*x2));
             }

@@ -5,15 +5,15 @@ class OperationTest : public ::testing::Test {
     protected:
 
         void SetUp() override {
-            set1.set(domain::DomainElement::Of({0}), 1.0)
-                .set(domain::DomainElement::Of({1}), 0.8)
-                .set(domain::DomainElement::Of({2}), 0.6)
-                .set(domain::DomainElement::Of({3}), 0.4)
-                .set(domain::DomainElement::Of({4}), 0.2);
+            set1.set(domain::DomainElement({0}), 1.0)
+                .set(domain::DomainElement({1}), 0.8)
+                .set(domain::DomainElement({2}), 0.6)
+                .set(domain::DomainElement({3}), 0.4)
+                .set(domain::DomainElement({4}), 0.2);
         }
 
         SimpleDomain d = domain::DomainFactory::IntRange(0, 11);
-        fuzzy_set::MutableFuzzySet<domain::SimpleDomain> set1 = {d};
+        fuzzy_set::MutableFuzzySet<domain::SimpleDomain> set1{d};
         std::vector<double> gt_not = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
         std::vector<double> gt_u = {1.0, 0.8, 0.6, 0.6, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
         std::vector<double> gt_h = {0.0, 0.16, 0.24, 0.24, 0.16, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

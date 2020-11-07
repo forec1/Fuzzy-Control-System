@@ -55,7 +55,7 @@ TEST_F(CompositeDomainTest, ElementIndexTest) {
     EXPECT_EQ(ground_truth[0], cd1.ElementForIndex(0));
     EXPECT_EQ(ground_truth[5], cd1.ElementForIndex(5));
     EXPECT_EQ(ground_truth[14], cd1.ElementForIndex(14));
-    EXPECT_EQ(cd1.IndexOfElement(DomainElement::Of({4, 1})), 13);
+    EXPECT_EQ(cd1.IndexOfElement(DomainElement({4, 1})), 13);
 }
 
 TEST_F(CompositeDomainTest, GetComponentTest) {

@@ -1,3 +1,6 @@
+#ifndef _FUZZY_FUZZY_SET_HPP
+#define _FUZZY_FUZZY_SET_HPP
+
 #include "../function/unary_function.hpp"
 #include "../domain/domain.hpp"
 
@@ -5,26 +8,28 @@ using namespace domain;
 
 namespace fuzzy_set {
 
-    template<class Domain, class UnaryFunction>
+    template<class Domain>
     class CalculatedFuzzySet {
         private:
             Domain domain_;
-            UnaryFunction function_;
+            function::IntUnaryFunction function_;
 
         public:
-           CalculatedFuzzySet(Domain domain, UnaryFunction function) :
+            CalculatedFuzzySet() = default;
+
+            CalculatedFuzzySet(Domain domain, function::IntUnaryFunction function) :
                domain_(domain), function_(function) {};
 
-           Domain GetDomain() const { return domain_; }
+            [[nodiscard]] Domain GetDomain() const { return domain_; }
 
-           /**
+            /**
             * Returns value of membership function for given element,
             * If element is not found in the doimain 0.0 is returned.
             */
-           double GetValueAt(const DomainElement& e) const {
+            [[nodiscard]] double GetValueAt(const DomainElement& e) const {
                 int idx = domain_.IndexOfElement(e);
                 if(idx != 1) {
-                    return function_.value_at(idx);
+                    return function_(idx);
                 }
                 return 0.0;
            }
@@ -39,16 +44,16 @@ namespace fuzzy_set {
         public:
             MutableFuzzySet() = default;
 
-            MutableFuzzySet(Domain domain) : domain_(domain),
+            explicit MutableFuzzySet(Domain domain) : domain_(domain),
                 membership_(domain.GetCardinality(), 0) {}
 
-            Domain GetDomain() const { return domain_; }
+            [[nodiscard]] Domain GetDomain() const { return domain_; }
 
             /**
              * Returns value of membership function for given element.
              * If element is not found in the domain 0.0 is returned.
              */
-            double GetValueAt(const DomainElement& e) const {
+            [[nodiscard]] double GetValueAt(const DomainElement& e) const {
                 int idx = domain_.IndexOfElement(e);
                 if(idx != -1) {
                     return membership_[idx];
@@ -72,7 +77,7 @@ namespace fuzzy_set {
     template<class UnaryFunction>
     class StandardFuzzySets {
         public:
-            StandardFuzzySets() {}
+            StandardFuzzySets() = default;
             static UnaryFunction l_function(int alpha, int beta) {
                 return function::LFunction(alpha, beta);
             }
@@ -83,4 +88,6 @@ namespace fuzzy_set {
                 return function::LambdaFunction(alpha, beta, gamma);
             }
     };
-}
+} // namespace fuzzy_set
+#endif // _FUZZY_FUZZY_SET_HPP
+

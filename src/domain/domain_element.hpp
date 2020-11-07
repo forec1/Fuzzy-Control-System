@@ -1,5 +1,8 @@
-#include <vector>
+#ifndef DOMAIN_DOMAIN_ELEMENT_HPP
+#define DOMAIN_DOMAIN_ELEMENT_HPP
+
 #include <string>
+#include <vector>
 
 namespace domain {
 
@@ -13,29 +16,53 @@ class DomainElement {
         /**
          * Values of n-tuples.
          */
-        std::vector<int> values_;
+        std::vector<int> m_values;
 
     public:
-       DomainElement(std::vector<int> values);
 
-       /**
+        /**
+         * Copy constructor
+         */
+        DomainElement(const DomainElement& other) = default;
+
+        /**
+         * Move constructor
+         */
+        DomainElement(DomainElement&& other) noexcept;
+
+        explicit DomainElement(const std::vector<int>& values);
+        explicit DomainElement(std::vector<int>&& values) noexcept;
+
+        /**
+         * Destructor
+         */
+        ~DomainElement() = default;
+
+        /**
         * Returns size of the tuple.
         */
-       size_t GetNumberOfComponents() const;
+        [[nodiscard]] size_t GetNumberOfComponents() const;
 
-       /**
+        /**
         * Returns value of the tuple at given index.
         */
-       int GetComponentValue(int index) const;
+        [[nodiscard]] int GetComponentValue(int index) const;
 
-       /**
-        * Creates new DomainElement with specified values.
-        */
-       static DomainElement Of(std::vector<int> values);
+        bool operator==(const DomainElement& e) const;
+        bool operator!=(const DomainElement& e) const;
 
-       bool operator==(const DomainElement& e) const;
-       bool operator!=(const DomainElement& e) const;
+        /**
+         * Move assigment
+         */
+        DomainElement& operator=(DomainElement&& other) noexcept;
 
-       std::string ToString() const;
+        /**
+         * Copy assigment
+         */
+        DomainElement& operator=(const DomainElement& other);;
+
+        [[nodiscard]] std::string ToString() const;
 };
-}
+} //namespace domain
+
+#endif  // DOMAIN_DOMAIN_ELEMENT_HPP
